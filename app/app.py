@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from ultralytics import YOLO
 import cv2
 import numpy as np
@@ -272,7 +273,13 @@ async def test():
 # Mount static files
 current_dir = os.path.dirname(os.path.abspath(__file__))
 static_dir = current_dir  # Trỏ trực tiếp đến thư mục hiện tại
-app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+app.mount("/static", StaticFiles(directory=static_dir, html=True), name="static")
+
+@app.get("/")
+async def serve_index():
+    """Serve the index.html file."""
+    index_path = os.path.join(static_dir, "index.html")
+    return FileResponse(index_path)
 
 if __name__ == '__main__':
     # host='192.168.1.15'
