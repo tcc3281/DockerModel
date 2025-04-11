@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
 import cv2
 import numpy as np
@@ -9,6 +10,7 @@ import time
 import torch
 from torchvision import models
 import torch.nn as nn
+import os
 
 # === Global Variables and Configurations ===
 NUM_CLASSES = 51
@@ -267,9 +269,14 @@ async def detect_and_classify(file: UploadFile = File(...)):
 async def test():
     return "API is running!"
 
+# Mount static files
+current_dir = os.path.dirname(os.path.abspath(__file__))
+static_dir = current_dir  # Trỏ trực tiếp đến thư mục hiện tại
+app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+
 if __name__ == '__main__':
-    host='192.168.1.15'
-    # host='0.0.0.0'
+    # host='192.168.1.15'
+    host='0.0.0.0'
     uvicorn.run(
         app,
         host=host,

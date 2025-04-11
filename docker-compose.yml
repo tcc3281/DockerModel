@@ -9,5 +9,9 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
+      - pip-cache:/root/.cache/pip
     environment:
       - PYTHONUNBUFFERED=1
+
+volumes:
+  pip-cache:
