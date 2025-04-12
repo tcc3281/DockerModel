@@ -106,7 +106,7 @@ DockerModel/
   - **Detect & Classify**: Kết hợp phát hiện và phân loại.
 
 - **Demo giao diện web**:
-  ![Web Demo](assets/demo_interface.png)
+  ![Web Demo](assets/Screenshot_13-4-2025_01055_3.107.235.182.jpeg)
 
 ---
 
