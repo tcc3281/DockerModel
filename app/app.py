@@ -231,35 +231,32 @@ async def detect_and_classify(file: UploadFile = File(...)):
         # Classification for each detected object
         classify_results = []
         for box in detect_results[0].boxes:
-            if float(box.conf) > 0.6:  # Filter detection confidence
-                x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
-                cropped_image = image[y1:y2, x1:x2]
-                cropped_tensor = process_image_for_resnet(cv2.imencode('.jpg', cropped_image)[1].tobytes())
+            x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+            cropped_image = image[y1:y2, x1:x2]
+            cropped_tensor = process_image_for_resnet(cv2.imencode('.jpg', cropped_image)[1].tobytes())
 
-                with torch.no_grad():
-                    outputs = model_resnet(cropped_tensor)
-                    probs = torch.nn.functional.softmax(outputs, dim=1)
-                    top_prob, top_class = torch.max(probs, dim=1)
-
-                    if top_prob.item() > 0.6:  # Filter classification confidence
-                        classify_results.append({
-                            "detection": {
-                                "class": model_yolo.names[int(box.cls)],
-                                "confidence": float(box.conf),
-                                "bbox": [x1, y1, x2, y2]
-                            },
-                            "classification": {
-                                "class": class_names_resnet[top_class.item()],
-                                "confidence": top_prob.item()
-                            }
-                        })
+            with torch.no_grad():
+                outputs = model_resnet(cropped_tensor)
+                probs = torch.nn.functional.softmax(outputs, dim=1)
+                top_prob, top_class = torch.max(probs, dim=1)
+                classify_results.append({
+                    "detection": {
+                        "class": model_yolo.names[int(box.cls)],
+                        "confidence": float(box.conf),
+                        "bbox": [x1, y1, x2, y2]
+                    },
+                    "classification": {
+                        "class": class_names_resnet[top_class.item()],
+                        "confidence": top_prob.item()
+                    }
+                })
 
         total_time = (time.time() - start_time) * 1000
 
         return {
             "results": classify_results,
             "image_size": detect_results[0].orig_shape,
-            "detected_objects": len(classify_results),
+            "detected_objects": len(detect_results[0].boxes),
             "speed": {
                 "detection": detect_time,
                 "total": total_time
@@ -285,13 +282,12 @@ async def serve_index():
     return FileResponse(index_path)
 
 if __name__ == '__main__':
-    # Set host to '0.0.0.0' to allow external access
-    host = '0.0.0.0'
-    port = 8000  # Ensure this matches the exposed port in Docker
+    # host='192.168.1.15'
+    host='0.0.0.0'
     uvicorn.run(
         app,
         host=host,
-        port=port
+        port=8000
     )
 # python -m http.server 3000 --bind 0.0.0.0
 # http://localhost:3000/
