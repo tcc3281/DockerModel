@@ -253,6 +253,9 @@
 </div>
 
 <script>
+    // Replace 'http://3.107.235.182:8000' with your server's public IP or domain
+    const API_BASE_URL = 'http://3.107.235.182:8000';
+
     // Thêm biến lưu chế độ
     let currentMode = 'detect';
 
@@ -519,7 +522,7 @@
             const endpoint = currentMode === 'detect' ? '/detect' : 
                              currentMode === 'classify' ? '/classify' : '/detect_and_classify';
 
-            const response = await fetch(`http://localhost:8000${endpoint}`, {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method: "POST",
                 body: createFormData(compressedFile)
             });
